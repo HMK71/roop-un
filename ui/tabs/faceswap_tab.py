@@ -11,6 +11,7 @@ from roop.ProcessEntry import ProcessEntry
 from roop.ProcessOptions import ProcessOptions
 from roop.FaceSet import FaceSet
 import requests
+from io import BytesIO
 
 last_image = None
 
@@ -312,15 +313,29 @@ def on_mask_engine_changed(mask_engine):
     #if files is None:
         #gr.Warning("Empty folder or folder not found!")
     #return files
-def on_add_local_folder(folder):
-    # Check if the folder is local or Pikpak
-    if folder.startswith('/content/webdav'):  # Pikpak folder
-        # Assuming you have a function to fetch files from Pikpak
-        files = util.get_files_from_webdav(folder)
-    else:  # Local folder
-        files = util.get_local_files_from_folder(folder)
+def get_files_from_webdav(webdav_folder):
+    # Ensure the WebDAV folder is mounted first.
+    # Use requests to list the files if you have set up a WebDAV client
+    webdav_url = f"/content/webdav/{webdav_folder}"
+    file_list = []
     
-    if files is None:
+    # List all files in the WebDAV folder (you can use os or davclient library)
+    try:
+        if os.path.isdir(webdav_url):
+            file_list = os.listdir(webdav_url)  # List files in folder
+        else:
+            raise Exception(f"{webdav_url} is not a valid directory.")
+    except Exception as e:
+        print(f"Error reading files from {webdav_folder}: {str(e)}")
+    
+    return file_list
+
+def on_add_local_folder(folder):
+    if folder == "/content/webdav":
+        files = get_files_from_webdav(folder)  # Get files from PikPak WebDAV mount
+    else:
+        files = util.get_local_files_from_folder(folder)  # Fallback to local folder
+    if files is None or len(files) == 0:
         gr.Warning("Empty folder or folder not found!")
     return files
 
