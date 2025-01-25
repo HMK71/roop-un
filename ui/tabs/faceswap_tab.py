@@ -40,18 +40,6 @@ manual_masking = False
 
 def faceswap_tab():
     global no_face_choices, previewimage
-    
-    with gr.Tab("🔐 WebDAV Login"):
-        with gr.Row(variant='panel'):
-            with gr.Column(scale=2):
-                dav_url = gr.Textbox(label="WebDAV URL", placeholder="请输入 WebDAV 地址", interactive=True)
-                dav_url_info = gr.Markdown("**PikPak WebDAV 地址：** `https://dav.pikpak.com`", visible=True)
-                dav_username = gr.Textbox(label="用户名", placeholder="请输入用户名", interactive=True)
-                dav_password = gr.Textbox(label="密码", placeholder="请输入密码", type="password", interactive=True)
-                bt_login = gr.Button("登录", variant='primary')
-                login_status = gr.Markdown("请填写上述信息并点击登录。", visible=True)
-
-        bt_login.click(fn=on_webdav_login, inputs=[dav_url, dav_username, dav_password], outputs=[login_status])
 
 
     
@@ -279,40 +267,6 @@ def faceswap_tab():
     set_frame_start.click(fn=on_set_frame, inputs=[set_frame_start, preview_frame_num], outputs=[text_frame_clip])
     set_frame_end.click(fn=on_set_frame, inputs=[set_frame_end, preview_frame_num], outputs=[text_frame_clip])
 
-def on_webdav_login(url, username, password):
-    # 登录并获取文件列表
-    response = requests.get(url, auth=(username, password))
-    if response.status_code == 200:
-        # 获取文件列表
-        file_list = get_webdav_file_list(url, username, password)
-        return file_list
-    else:
-        return f"登录失败：{response.status_code} - {response.text}"
-
-def get_webdav_file_list(url, username, password):
-    # 使用 requests 库获取 WebDAV 文件列表
-    response = requests.request('PROPFIND', url, auth=(username, password))
-    if response.status_code == 207:
-        # 解析响应，提取文件路径
-        file_paths = parse_webdav_response(response.text)
-        return file_paths
-    else:
-        return []
-
-def parse_webdav_response(response_text):
-    # 解析 WebDAV 响应，提取文件路径（根据实际响应格式修改）
-    # 这里假设我们从响应中提取文件名
-    file_paths = []
-    # 这里需要解析您的响应，提取文件的路径
-    return file_paths
-
-def display_webdav_files(url, username, password):
-    # 获取 WebDAV 文件列表并在 Gradio 中显示
-    file_list = on_webdav_login(url, username, password)
-    if isinstance(file_list, list):
-        return gr.Dropdown(label="选择文件", choices=file_list)
-    else:
-        return gr.Textbox(value=file_list)
 
     
 def on_mask_top_changed(mask_offset):
