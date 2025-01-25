@@ -39,7 +39,21 @@ manual_masking = False
 
 def faceswap_tab():
     global no_face_choices, previewimage
+    
+    with gr.Tab("🔐 WebDAV Login"):
+        with gr.Row(variant='panel'):
+            with gr.Column(scale=2):
+                dav_url = gr.Textbox(label="WebDAV URL", placeholder="请输入 WebDAV 地址", interactive=True)
+                dav_url_info = gr.Markdown("**PikPak WebDAV 地址：** `https://dav.pikpak.com`", visible=True)
+                dav_username = gr.Textbox(label="用户名", placeholder="请输入用户名", interactive=True)
+                dav_password = gr.Textbox(label="密码", placeholder="请输入密码", type="password", interactive=True)
+                bt_login = gr.Button("登录", variant='primary')
+                login_status = gr.Markdown("请填写上述信息并点击登录。", visible=True)
 
+        bt_login.click(fn=on_webdav_login, inputs=[dav_url, dav_username, dav_password], outputs=[login_status])
+
+
+    
     with gr.Tab("🎭 Face Swap"):
         with gr.Row(variant='panel'):
             with gr.Column(scale=2):
@@ -264,7 +278,33 @@ def faceswap_tab():
     set_frame_start.click(fn=on_set_frame, inputs=[set_frame_start, preview_frame_num], outputs=[text_frame_clip])
     set_frame_end.click(fn=on_set_frame, inputs=[set_frame_end, preview_frame_num], outputs=[text_frame_clip])
 
+def on_webdav_login(url, username, password):
+    # 使用 requests 库进行身份验证
+    response = requests.get(url, auth=(username, password))
+    if response.status_code == 200:
+        # 获取文件列表
+        file_list = get_webdav_file_list(url, username, password)
+        # 在 Gradio 界面中显示文件列表
+        return gr.File(label="选择文件", file_paths=file_list)
+    else:
+        return f"登录失败：{response.status_code} - {response.text}"
 
+def get_webdav_file_list(url, username, password):
+    # 使用 requests 库获取 WebDAV 文件列表
+    response = requests.request('PROPFIND', url, auth=(username, password))
+    if response.status_code == 207:
+        # 解析响应，提取文件路径
+        file_paths = parse_webdav_response(response.text)
+        return file_paths
+    else:
+        return []
+
+def parse_webdav_response(response_text):
+    # 解析 WebDAV 响应，提取文件路径
+    # 这里需要根据 WebDAV 服务器的具体实现来解析响应
+    # 返回文件路径列表
+    return []
+    
 def on_mask_top_changed(mask_offset):
     set_mask_offset(0, mask_offset)
 
