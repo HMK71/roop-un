@@ -313,6 +313,9 @@ def on_mask_engine_changed(mask_engine):
     #if files is None:
         #gr.Warning("Empty folder or folder not found!")
     #return files
+import os
+import requests  # To interact with WebDAV API, adjust according to your client setup
+
 def get_files_from_webdav(webdav_folder):
     # Ensure the WebDAV folder is mounted first.
     # Use requests to list the files if you have set up a WebDAV client
@@ -329,15 +332,15 @@ def get_files_from_webdav(webdav_folder):
         print(f"Error reading files from {webdav_folder}: {str(e)}")
     
     return file_list
-
 def on_add_local_folder(folder):
     if folder == "/content/webdav":
-        files = get_files_from_webdav(folder)  # Get files from PikPak WebDAV mount
+        files = get_files_from_webdav(folder)  # Get files from WebDAV mount
     else:
         files = util.get_local_files_from_folder(folder)  # Fallback to local folder
     if files is None or len(files) == 0:
-        gr.Warning("Empty folder or folder not found!")
-    return files
+        print("No files found in the specified folder.")
+    else:
+        print(f"Files found: {files}")
 
 
 
