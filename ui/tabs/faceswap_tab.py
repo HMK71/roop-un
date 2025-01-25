@@ -303,24 +303,12 @@ def on_mask_engine_changed(mask_engine):
     return gr.Textbox(interactive=False)
 
 
-#def on_add_local_folder(folder):
-   # files = util.get_local_files_from_folder(folder)
-    #if files is None:
-     #   gr.Warning("Empty folder or folder not found!")
-    #return files
-def get_local_files_from_folder(folder):
-    # 检查路径是否存在以及是否有内容
-    if os.path.exists(folder) and os.listdir(folder):
-        return os.listdir(folder)  # 返回文件列表
-    else:
-        return ["Empty folder or folder not found!"]  # 返回错误信息
-
-# 定义输入和输出
-local_folder = gr.Textbox(show_label=False, placeholder="/content/", interactive=True)
-
 def on_add_local_folder(folder):
-    files = get_local_files_from_folder(folder)
+    files = util.get_local_files_from_folder(folder)
+    if files is None:
+        gr.Warning("Empty folder or folder not found!")
     return files
+
 
 def on_srcfile_changed(srcfiles, progress=gr.Progress()):
     global SELECTION_FACES_DATA, IS_INPUT, input_faces, face_selection, last_image
