@@ -307,11 +307,23 @@ def on_mask_engine_changed(mask_engine):
     return gr.Textbox(interactive=False)
 
 
+#def on_add_local_folder(folder):
+    #files = util.get_local_files_from_folder(folder)
+    #if files is None:
+        #gr.Warning("Empty folder or folder not found!")
+    #return files
 def on_add_local_folder(folder):
-    files = util.get_local_files_from_folder(folder)
+    # Check if the folder is local or Pikpak
+    if folder.startswith('/content/webdav'):  # Pikpak folder
+        # Assuming you have a function to fetch files from Pikpak
+        files = util.get_files_from_webdav(folder)
+    else:  # Local folder
+        files = util.get_local_files_from_folder(folder)
+    
     if files is None:
         gr.Warning("Empty folder or folder not found!")
     return files
+
 
 
 def on_srcfile_changed(srcfiles, progress=gr.Progress()):
