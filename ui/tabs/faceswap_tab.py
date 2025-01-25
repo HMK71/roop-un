@@ -280,13 +280,12 @@ def faceswap_tab():
     set_frame_end.click(fn=on_set_frame, inputs=[set_frame_end, preview_frame_num], outputs=[text_frame_clip])
 
 def on_webdav_login(url, username, password):
-    # 使用 requests 库进行身份验证
+    # 登录并获取文件列表
     response = requests.get(url, auth=(username, password))
     if response.status_code == 200:
         # 获取文件列表
         file_list = get_webdav_file_list(url, username, password)
-        # 在 Gradio 界面中显示文件列表
-        return gr.File(label="选择文件", file_paths=file_list)
+        return file_list
     else:
         return f"登录失败：{response.status_code} - {response.text}"
 
@@ -301,10 +300,20 @@ def get_webdav_file_list(url, username, password):
         return []
 
 def parse_webdav_response(response_text):
-    # 解析 WebDAV 响应，提取文件路径
-    # 这里需要根据 WebDAV 服务器的具体实现来解析响应
-    # 返回文件路径列表
-    return []
+    # 解析 WebDAV 响应，提取文件路径（根据实际响应格式修改）
+    # 这里假设我们从响应中提取文件名
+    file_paths = []
+    # 这里需要解析您的响应，提取文件的路径
+    return file_paths
+
+def display_webdav_files(url, username, password):
+    # 获取 WebDAV 文件列表并在 Gradio 中显示
+    file_list = on_webdav_login(url, username, password)
+    if isinstance(file_list, list):
+        return gr.Dropdown(label="选择文件", choices=file_list)
+    else:
+        return gr.Textbox(value=file_list)
+
     
 def on_mask_top_changed(mask_offset):
     set_mask_offset(0, mask_offset)
